@@ -13,7 +13,7 @@ struct ContentView : View {
     @ObjectBinding var photoLibrary = PhotoLibrary()
 
     var body: some View {
-        SimpleGridView(data: self.photoLibrary.photoAssets.identified(by: \.self)) { a in
+        Grid(data: self.photoLibrary.photoAssets.identified(by: \.self)) { a in
             PhotoRow(photo: a).frame(width: 120, height: 120)
             }.edgesIgnoringSafeArea(.all)
             .onAppear {
@@ -52,75 +52,3 @@ struct ContentView_Previews : PreviewProvider {
 #endif
 
 
-struct SimpleGridView<Data, Content>: UIViewRepresentable where Data: RandomAccessCollection, Content: View, Data.Element: Identifiable, Data.Index == Int {
-    
-    var data: Data
-    var space: Float = 1
-    var content: (Data.Element.IdentifiedValue) -> Content
-    
-    func makeCoordinator() -> SimpleGridView.Coordinator {
-        return Coordinator(self)
-    }
-    
-    func makeUIView(context: UIViewRepresentableContext<SimpleGridView>) -> UICollectionView {
-        let layout = UICollectionViewFlowLayout()
-        layout.minimumLineSpacing = CGFloat(space)
-        layout.minimumInteritemSpacing = CGFloat(space)
-        
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.register(GridCell<Content>.self, forCellWithReuseIdentifier: "identifier")
-        collectionView.delegate = context.coordinator
-        collectionView.dataSource = context.coordinator
-        return collectionView
-    }
-    
-    func updateUIView(_ uiView: UICollectionView, context: UIViewRepresentableContext<SimpleGridView>) {
-        context.coordinator.parent = self
-        uiView.reloadData()
-    }
-    
-    class Coordinator: NSObject, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-        var parent: SimpleGridView
-        
-        init(_ view: SimpleGridView) {
-            parent = view
-        }
-        
-        func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-            parent.data.count
-        }
-        
-        func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-            let element = parent.data[indexPath.row]
-            let content = parent.content(element.identifiedValue)
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "identifier", for: indexPath) as! GridCell<Content>
-            cell.configure(content: content)
-            return cell
-        }
-        
-        func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-            let element = parent.data[indexPath.row]
-            let controller = UIHostingController(rootView: parent.content(element.identifiedValue))
-            return controller.sizeThatFits(in: UIView.layoutFittingCompressedSize)
-        }
-    }
-}
-
-class GridCell<Content>: UICollectionViewCell where Content: View  {
-    var content: UIHostingController<Content>?
-
-    override func prepareForReuse() {
-        content = nil
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        content?.view.frame = bounds
-    }
-    
-    func configure(content: Content) {
-        let controller = UIHostingController(rootView: content)
-        addSubview(controller.view)
-        self.content = controller
-    }
-}
