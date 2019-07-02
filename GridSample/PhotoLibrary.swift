@@ -36,7 +36,7 @@ class Asset: BindableObject, Identifiable, Hashable {
     private var manager = PHImageManager.default()
     func request() {
         DispatchQueue.global().async {
-            self.manager.requestImage(for: self.asset, targetSize: CGSize(width: 100, height: 100), contentMode: .aspectFill, options: nil) { [weak self] (image, info) in
+            self.manager.requestImage(for: self.asset, targetSize: CGSize(width: 120, height: 120), contentMode: .aspectFill, options: nil) { [weak self] (image, info) in
                 self?.image = image
             }
         }

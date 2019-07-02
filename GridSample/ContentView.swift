@@ -14,12 +14,11 @@ struct ContentView : View {
 
     var body: some View {
         SimpleGridView(data: self.photoLibrary.photoAssets.identified(by: \.self)) { a in
-            PhotoRow(photo: a).frame(width: 110, height: 110)
+            PhotoRow(photo: a).frame(width: 120, height: 120)
             }.edgesIgnoringSafeArea(.all)
             .onAppear {
                 self.photoLibrary.requestAuthorization()
-            }
-  
+        }
     }
 }
 
@@ -29,20 +28,18 @@ struct PhotoRow: View {
     var body: some View {
         HStack {
             if photo.image != nil {
-                withAnimation {
-                    Image(uiImage: photo.image!)
-                        .frame(width: 100, height: 100)
-                        .scaledToFill()
-                        .clipped()
-                }
+                Image(uiImage: photo.image!)
+                    .frame(width: 120, height: 120)
+                    .scaledToFill()
+                    .clipped()
             } else {
-                Color.white.frame(width: 100, height: 100)
+                Color.white.frame(width: 120, height: 120)
             }
-            }.onAppear {
-                self.isDisappeard = false
-                self.photo.request()
-            }.onDisappear {
-                self.isDisappeard = true
+        }.onAppear {
+            self.isDisappeard = false
+            self.photo.request()
+        }.onDisappear {
+            self.isDisappeard = true
         }
     }
 }
@@ -58,7 +55,7 @@ struct ContentView_Previews : PreviewProvider {
 struct SimpleGridView<Data, Content>: UIViewRepresentable where Data: RandomAccessCollection, Content: View, Data.Element: Identifiable, Data.Index == Int {
     
     var data: Data
-    var space: Float = 8
+    var space: Float = 1
     var content: (Data.Element.IdentifiedValue) -> Content
     
     func makeCoordinator() -> SimpleGridView.Coordinator {
@@ -116,9 +113,13 @@ class GridCell<Content>: UICollectionViewCell where Content: View  {
         content = nil
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        content?.view.frame = bounds
+    }
+    
     func configure(content: Content) {
         let controller = UIHostingController(rootView: content)
-        controller.view.frame = bounds
         addSubview(controller.view)
         self.content = controller
     }
