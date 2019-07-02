@@ -13,16 +13,12 @@ struct ContentView : View {
     @ObjectBinding var photoLibrary = PhotoLibrary()
 
     var body: some View {
-        NavigationView {
-            
-            SimpleGridView(data: self.photoLibrary.photoAssets.identified(by: \.self)) { a in
-                PhotoRow(photo: a).frame(width: 110, height: 110)
-                }.edgesIgnoringSafeArea(.all)
-                .onAppear {
-                    self.photoLibrary.requestAuthorization()
-                }
-        }
-        .navigationBarTitle(Text("Photos"))
+        SimpleGridView(data: self.photoLibrary.photoAssets.identified(by: \.self)) { a in
+            PhotoRow(photo: a).frame(width: 110, height: 110)
+            }.edgesIgnoringSafeArea(.all)
+            .onAppear {
+                self.photoLibrary.requestAuthorization()
+            }
   
     }
 }
@@ -115,20 +111,15 @@ struct SimpleGridView<Data, Content>: UIViewRepresentable where Data: RandomAcce
 
 class GridCell<Content>: UICollectionViewCell where Content: View  {
     var content: UIHostingController<Content>?
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        content?.view.frame = bounds
-        
+
+    override func prepareForReuse() {
+        content = nil
     }
     
     func configure(content: Content) {
-        if let _content = self.content {
-            _content.rootView = content
-        } else {
-            let controller = UIHostingController(rootView: content)
-            addSubview(controller.view)
-            self.content = controller
-        }
+        let controller = UIHostingController(rootView: content)
+        controller.view.frame = bounds
+        addSubview(controller.view)
+        self.content = controller
     }
 }
