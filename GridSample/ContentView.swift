@@ -24,7 +24,7 @@ struct ContentView : View {
 
 struct PhotoRow: View {
     @ObjectBinding var photo: Asset
-    private @State var isDisappeard = false
+    @State private var isDisappeard = false
     var body: some View {
         HStack {
             if photo.image != nil {
