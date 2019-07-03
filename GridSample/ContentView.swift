@@ -15,16 +15,16 @@ struct ContentView : View {
     var body: some View {
         Grid(data: self.photoLibrary.photoAssets.identified(by: \.self)) { a in
             PhotoRow(photo: a).frame(width: 120, height: 120)
-            }.edgesIgnoringSafeArea(.all)
-            .onAppear {
-                self.photoLibrary.requestAuthorization()
+        }
+        .onAppear {
+            self.photoLibrary.requestAuthorization()
         }
     }
 }
 
 struct PhotoRow: View {
     @ObjectBinding var photo: Asset
-    @State var isDisappeard = false
+    private @State var isDisappeard = false
     var body: some View {
         HStack {
             if photo.image != nil {

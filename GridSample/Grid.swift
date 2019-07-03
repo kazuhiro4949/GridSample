@@ -9,7 +9,10 @@
 import SwiftUI
 
 
-struct Grid<Data, Content>: UIViewRepresentable where Data: RandomAccessCollection, Content: View, Data.Element: Identifiable, Data.Index == Int {
+struct Grid<Data, Content>: UIViewRepresentable where
+    Data: RandomAccessCollection,
+    Content: View, Data.Element:
+    Identifiable, Data.Index == Int {
     
     var data: Data
     var space: Float = 5
