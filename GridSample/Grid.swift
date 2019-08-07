@@ -9,14 +9,19 @@
 import SwiftUI
 
 
-struct Grid<Data, Content>: UIViewRepresentable where
+struct Grid<Data, ID, Content>: UIViewRepresentable where
     Data: RandomAccessCollection,
-    Content: View, Data.Element:
-    Identifiable, Data.Index == Int {
-    
+    Content: View, Data.Element: Identifiable, Data.Index == Int, ID: Hashable {
     var data: Data
+    var id: KeyPath<Data.Element, ID>
     var space: Float = 5
-    var content: (Data.Element.IdentifiedValue) -> Content
+    var content: (Data.Element) -> Content
+    
+    init(_ data: Data, id: KeyPath<Data.Element, ID>, content: @escaping (Data.Element) -> Content) {
+        self.data = data
+        self.id = id
+        self.content = content
+    }
     
     func makeCoordinator() -> Grid.Coordinator {
         return Coordinator(self)
@@ -52,7 +57,7 @@ struct Grid<Data, Content>: UIViewRepresentable where
         
         func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
             let element = parent.data[indexPath.row]
-            let content = parent.content(element.identifiedValue)
+            let content = parent.content(element)
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "identifier", for: indexPath) as! GridCell<Content>
             cell.configure(content: content)
             return cell
@@ -60,7 +65,7 @@ struct Grid<Data, Content>: UIViewRepresentable where
         
         func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
             let element = parent.data[indexPath.row]
-            let controller = UIHostingController(rootView: parent.content(element.identifiedValue))
+            let controller = UIHostingController(rootView: parent.content(element))
             return controller.sizeThatFits(in: UIView.layoutFittingCompressedSize)
         }
     }

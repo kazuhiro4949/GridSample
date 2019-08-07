@@ -10,29 +10,20 @@ import SwiftUI
 import Combine
 import Photos
 
-class Asset: BindableObject, Identifiable, Hashable {
+class Asset: ObservableObject, Identifiable, Hashable {
     
     static func == (lhs: Asset, rhs: Asset) -> Bool {
-        lhs.identifiedValue == rhs.identifiedValue
+        lhs.id == rhs.id
     }
     
     func hash(into hasher: inout Hasher) {
-        hasher.combine(identifiedValue)
+        hasher.combine(id)
     }
     
-    public var identifiedValue: String { asset.localIdentifier }
-    
-    var image: UIImage? {
-        didSet {
-            DispatchQueue.main.async {
-                self.didChange.send(self.image)
-            }
-        }
-    }
+    @Published var image: UIImage? = nil
     
     let asset: PHAsset
     
-    var didChange = PassthroughSubject<UIImage?, Never>()
     private var manager = PHImageManager.default()
     func request() {
         DispatchQueue.global().async {
@@ -47,17 +38,9 @@ class Asset: BindableObject, Identifiable, Hashable {
     }
 }
 
-class PhotoLibrary: BindableObject {
-    var didChange = PassthroughSubject<[Asset], Never>()
+class PhotoLibrary: ObservableObject {
     
-    var photoAssets = [Asset]() {
-        didSet {
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                self.didChange.send(self.photoAssets)
-            }
-        }
-    }
+    @Published var photoAssets = [Asset]()
     
     func requestAuthorization() {
         PHPhotoLibrary.requestAuthorization { [weak self] (status) in
@@ -84,10 +67,12 @@ class PhotoLibrary: BindableObject {
         assets.enumerateObjects { (asset, index, stop) in
             _photoAssets.append(Asset(asset: asset))
         }
-        photoAssets = _photoAssets
+        DispatchQueue.main.async { [weak self] in
+            self?.photoAssets = _photoAssets
+        }
+        
     }
 }
 
 extension PHAsset: Identifiable {
-    public var identifiedValue: String { localIdentifier }
 }

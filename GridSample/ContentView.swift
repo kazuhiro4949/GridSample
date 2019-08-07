@@ -8,14 +8,16 @@
 
 import SwiftUI
 import Photos
+import Combine
 
 struct ContentView : View {
-    @ObjectBinding var photoLibrary = PhotoLibrary()
+    @ObservedObject var photoLibrary = PhotoLibrary()
 
     var body: some View {
-        Grid(data: self.photoLibrary.photoAssets.identified(by: \.self)) { a in
-            PhotoRow(photo: a).frame(width: 120, height: 120)
+        Grid(self.photoLibrary.photoAssets, id: \.self) {
+            PhotoRow(photo: $0).frame(width: 120, height: 120)
         }
+        .edgesIgnoringSafeArea(.all)
         .onAppear {
             self.photoLibrary.requestAuthorization()
         }
@@ -23,7 +25,7 @@ struct ContentView : View {
 }
 
 struct PhotoRow: View {
-    @ObjectBinding var photo: Asset
+    @ObservedObject var photo: Asset
     @State private var isDisappeard = false
     var body: some View {
         HStack {
