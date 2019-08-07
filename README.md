@@ -1,3 +1,3 @@
 # GridSample
 
-Sample ioS app to make grid UI with SwiftUI
+Sample iOS app to make grid UI with SwiftUI
