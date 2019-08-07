@@ -2,7 +2,7 @@
 //  Grid.swift
 //  GridSample
 //
-//  Created by kahayash on 7/3/1 R.
+//  Created by Kazuhiro Hayashi on 7/3/1 R.
 //  Copyright © 1 Reiwa Kazuhiro Hayashi. All rights reserved.
 //
 
